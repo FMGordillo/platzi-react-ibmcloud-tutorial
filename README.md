@@ -1,10 +1,12 @@
 # Índice
 
-- [**`Requisitos previos`**]("requisitos-previos")
-- [**`Paso 1`**]("paso-1-create-it")
-- [**`Paso 2`**]("paso-2-build-it")
-- [**`Paso 3`**]("paso-3-deploy-it")
-- [**`FAQ`**]("faq")
+- [**`Requisitos previos`**](#requisitos-previos)
+- [**`Paso 1`**](#paso-1---create-it)
+- [**`Paso 2`**](#paso-2---build-it)
+- [**`Paso 3`**](#paso-3---deploy-it)
+  - [**`Opción #1 (Recomendada)`**](#opci%C3%B3n-1-recomendada)
+  - [**`Opción #2 ("Rápida")`**](#opci%C3%B3n-2-r%C3%A1pida)
+- [**`FAQ`**](#faq)
 
 # Requisitos previos
 
@@ -41,7 +43,7 @@ Y para consumir menos memoria en IBM Cloud, necesitaremos un paquete más... Ya 
 ```
 $ yarn add if-env
 o
-$ npm i if-env
+$ npm i -S if-env
 ```
 
 # Paso 2 - Build it
