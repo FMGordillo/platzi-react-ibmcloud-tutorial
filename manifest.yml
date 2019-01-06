@@ -1,0 +1,4 @@
+applications:
+  - name: platzi-react-ibmcloud
+    memory: 128M
+    command: npm run deploy

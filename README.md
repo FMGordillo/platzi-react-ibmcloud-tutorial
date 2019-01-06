@@ -1,68 +1,217 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Índice
 
-## Available Scripts
+- [**`Requisitos previos`**]("requisitos-previos")
+- [**`Paso 1`**]("paso-1-create-it")
+- [**`Paso 2`**]("paso-2-build-it")
+- [**`Paso 3`**]("paso-3-deploy-it")
+- [**`FAQ`**]("faq")
 
-In the project directory, you can run:
+# Requisitos previos
 
-### `npm start`
+- Una cuenta en [**`IBM Cloud`**](https://cloud.ibm.com/registration/)
+- [**`IBM Cloud CLI`**](https://console.bluemix.net/docs/cli/reference/ibmcloud/download_cli.html#install_use)
+- [**`Node.js`**](https://nodejs.org/en/) >= v8.10.0 `(*)`
+- (Opcional) [**`Yarn`**](https://yarnpkg.com/)
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+`(*)` Recomendado para probar localmente; no es necesario para deployar a IBM Cloud
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+# Paso 1 - Create it
 
-### `npm test`
+Empecemos sin dolores de cabeza: con [**`create-react-app`**](https://github.com/facebook/create-react-app):
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+$ npx create-react-app platzi-react-ibmcloud
+```
 
-### `npm run build`
+En caso de que tengas `npm <= 5.2` probá con esto:
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+$ npm i -g create-react-app
+$ create-react-app platzi-react-ibmcloud
+```
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+También vamos a necesitar [**`express`**](https://github.com/expressjs/express) para este proceso.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+$ npm i -S express
+```
 
-### `npm run eject`
+Y para consumir menos memoria en IBM Cloud, necesitaremos un paquete más... Ya vas a ver por qué
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+$ yarn add if-env
+o
+$ npm i if-env
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Paso 2 - Build it
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Tenemos que crear un archivo para que se encargue del "lado de servidor `(*)`" que React no se ocupa (yo lo llamé **`server.js`** pero, hey, es un mundo libre, nombralo como quieras). Después, modificar el **`package.json`** (a ese no le podemos cambiar el nombre, _sorry_) y agregarle el comando que deployará hacia IBM Cloud.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+**`server.js`**
 
-## Learn More
+```javascript
+const express = require("express")
+const http = require("http")
+const path = require("path")
+const app = express()
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+app.use(express.static(path.join(__dirname, "build")))
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+app.get("/", (req, res) => {
+	res.sendFile(path.join(__dirname, "build", "index.html"))
+})
 
-### Code Splitting
+const server = http.createServer(app)
+const PORT = process.env.port || 3000
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+server.listen(PORT)
+server.on("listening", () => {
+	console.log(`Servidor escuchando en el puerto: ${PORT}`)
+})
+```
 
-### Analyzing the Bundle Size
+¿Te acordás de `if-env` que te dije de instalar? Bueno, acá lo usamos:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+**`package.json`**
 
-### Making a Progressive Web App
+```diff
+{
+	"name": "platzi-react-ibmcloud",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"express": "^4.16.4",
+		"if-env": "^1.0.4",
+		"react": "^16.7.0",
+		"react-dom": "^16.7.0",
+		"react-scripts": "2.1.3"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
++		"postinstall": "if-env NODE_ENV=production && npm run build || echo Avoiding post install",
++		"deploy": "npm run build && node index.js",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": [
+		">0.2%",
+		"not dead",
+		"not ie <= 11",
+		"not op_mini all"
+	]
+}
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+¡Y probá si funciona!
 
-### Advanced Configuration
+```
+$ npm run build
+$ npm run deploy
+or
+$ yarn build
+$ yarn deploy
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Y si no funciona, cloná este repositorio `¯\_(ツ)\_/¯`
 
-### Deployment
+`(*)` Si querés aprender más de Express.js [hay un curso en Platzi](https://platzi.com/clases/express-js/)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+# Paso 3 - Push it!
 
-### `npm run build` fails to minify
+Primero debemos iniciar sesión con `ibmcloud login`. **Recomiendo** que antes entren en su explorador a [**`IBM Cloud`**](https://cloud.ibm.com) e inicien sesión antes de ejecutar estos comandos.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```
+$ ibmcloud login
+API endpount: https://api.ng.bluemix.net	// Recomendado
+
+Email>
+Password>					// No aparece nada a proposito
+Authenticating...
+OK
+
+$ ibmcloud target --cf
+Targeted Cloud Foundry (https://api.ng.bluemix.net)
+Targeted org <tu-mail>
+Targeted space dev
+```
+
+Y ahora estamos listos para hacer deploy de nuestra aplicación. Acá hay dos maneras:
+
+## Opción #1 (Recomendada)
+
+Crear un archivo **`manifest.yml`** en el cual especificaremos todos los detalles para que IBM Cloud entienda qué le estamos dando:
+
+**`manifest.yml`**
+
+```yml
+---
+applications:
+  - name: platzi-react-ibmcloud
+    memory: 256M
+    command: npm run deploy
+```
+
+También vamos a crear un **`.cfignore`** (similar a `.gitignore`) para que no se pusheen nuestras dependencias a Cloud.
+
+**`.cfignore`**
+
+```
+node_modules
+build
+```
+
+¡Y ahora por fin!
+
+```
+ibmcloud app push
+```
+
+Este comand busca un archivo `manifest.yml` en el directorio. Y si lo encuentra, lo lee y procede a subir nuestros archivos y compilarlos hacia Cloud.
+
+## Opción #2 ("_Rápida_")
+
+```
+ibmcloud app push <nombre-de-app>
+```
+
+Tengan paciencia, y esperen a un mensaje así (como mucho, tarda 5 minutos):
+
+```
+name:              platzi-react-ibmcloud
+requested state:   started
+instances:         1/1
+usage:             128M x 1 instances
+routes:            platzi-react-ibmcloud.mybluemix.net
+last uploaded:     Sun 06 Jan 03:23:57 -03 2019
+stack:             cflinuxfs2
+buildpack:         SDK for Node.js(TM) (ibm-node.js-6.14.4, buildpack-v3.24-20181128-1339)
+start command:     npm run deploy
+
+     state     since                  cpu    memory      disk      details
+#0   running   2019-01-06T06:26:19Z   0.0%   0 of 128M   0 of 1G
+```
+
+Si no aparece, bueno... Cloná el repositorio y reintentalo con otro nombre, o creá un Issue.
+
+# FAQ
+
+## "¿Es necesario un tutorial para esto?"
+
+Obvio que hay muchas guias ya hechas ([acá](https://dev.to/loujaybee/using-create-react-app-with-express) hay una, [acá](https://medium.freecodecamp.org/how-to-make-create-react-app-work-with-a-node-backend-api-7c5c48acb1b0) otra...) pero esta es **una solución** que quise compartirles. Son libres de probras otras, según a gusto de cada uno, o jugar con algún framework que les ayude mejor (como [Next.js](https://nextjs.org/), [GatsbyJS](https://www.gatsbyjs.org/), etc.)
+
+## "En now.sh o Heroku puedo hacerlo fácil"
+
+Totalmente de acuerdo, y podés seguir tu vida con esas plataformas si querés.
+
+Pero si buscás escalar tu desarrollo (integrando servicios varios, como una [base de datos](https://cloud.ibm.com/catalog?category=databases) o [Inteligencia Artificial](https://cloud.ibm.com/catalog?category=ai) de manera "más seria" o eficiente), hacer tu aplicación más segura o simplemente para probar algo distinto, **este es el camino adecuado** para hacerlo.
+
+## "Me parece demasiado complicado IBM Cloud para un simple `create-react-app`"
+
+_I've been there_. Todo tiene una razón de ser, y no es distinto en el mundo de la tecnología. Y aunque asuste al principio todo esto, a medida que aprendas y te metas en Cloud, vas a notar las grandes virtudes y por qué tantas empresas eligen IBM Cloud.
+
+`create-react-app` ya lo conocemos, pero lo que **no** conocemos es [**`Cloud Foundry`**](https://docs.cloudfoundry.org/) y sus ventajas/desventajas, [Docker](https://www.docker.com/) en la nube... Necesitamos ampliar nuestro conocimiento, y este es un buen punto de partida.
