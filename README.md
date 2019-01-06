@@ -1,10 +1,10 @@
 # Índice
 
-- [**`Requisitos previos`**]("requisitos-previos")
-- [**`Paso 1`**]("paso-1-create-it")
-- [**`Paso 2`**]("paso-2-build-it")
-- [**`Paso 3`**]("paso-3-deploy-it")
-- [**`FAQ`**]("faq")
+- [**`Requisitos previos`**](#requisitos-previos)
+- [**`Paso 1`**](#paso-1-create-it)
+- [**`Paso 2`**](#paso-2-build-it)
+- [**`Paso 3`**](#paso-3-deploy-it)
+- [**`FAQ`**](#faq)
 
 # Requisitos previos
 
