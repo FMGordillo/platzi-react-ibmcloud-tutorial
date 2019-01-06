@@ -43,7 +43,7 @@ Y para consumir menos memoria en IBM Cloud, necesitaremos un paquete más... Ya 
 ```
 $ yarn add if-env
 o
-$ npm i if-env
+$ npm i -S if-env
 ```
 
 # Paso 2 - Build it
